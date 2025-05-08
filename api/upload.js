@@ -1,5 +1,4 @@
 import { IncomingForm } from 'formidable';
-import fs from 'fs';
 import * as w3up from '@web3-storage/w3up-client';
 
 export const config = {
@@ -11,13 +10,17 @@ export const config = {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
-  const form = new IncomingForm();
+  const form = new IncomingForm({ keepExtensions: true, maxFileSize: 5 * 1024 * 1024 });
+
   form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: 'Form parse error' });
+    if (err) {
+      console.error("Form parse error:", err);
+      return res.status(500).json({ error: 'Form parse error' });
+    }
 
     try {
       const uploaded = files.file;
-      const buffer = fs.readFileSync(uploaded.filepath);
+      const buffer = await uploaded.toBuffer(); // ⬅️ 替代 fs.readFileSync
       const blob = new Blob([buffer], { type: uploaded.mimetype });
       const file = new File([blob], uploaded.originalFilename, {
         type: uploaded.mimetype,
