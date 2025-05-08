@@ -1,4 +1,3 @@
-// api/upload.js
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import * as w3up from '@web3-storage/w3up-client';
